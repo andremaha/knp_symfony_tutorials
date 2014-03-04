@@ -1,1 +1,7 @@
-<h1>Hello, <em>{{ name }}!</em></h1>
+{% extends '::base.html.twig' %}
+
+{% block title 'This is the custom title' %}
+
+{% block body %}
+    {{ event.name }}
+{% endblock body %}
