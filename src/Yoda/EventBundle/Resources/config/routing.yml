@@ -1,3 +1,6 @@
-event_homepage:
-    pattern:  /event/{name}/{count}
-    defaults: { _controller: EventBundle:Default:index }
+_does_not_matter_how_its_named:
+    resource: routing/event.yml
+
+EventBundle_event:
+    resource: "@EventBundle/Resources/config/routing/event.yml"
+    prefix:   /event
