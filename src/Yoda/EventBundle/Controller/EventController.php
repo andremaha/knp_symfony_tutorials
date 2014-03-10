@@ -3,7 +3,11 @@
 namespace Yoda\EventBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 use Yoda\EventBundle\Entity\Event;
 use Yoda\EventBundle\Form\EventType;
@@ -18,6 +22,8 @@ class EventController extends Controller
     /**
      * Lists all Event entities.
      *
+     * @Template()
+     * @Route("/", name="event")
      */
     public function indexAction()
     {
@@ -25,13 +31,15 @@ class EventController extends Controller
 
         $entities = $em->getRepository('EventBundle:Event')->findAll();
 
-        return $this->render('EventBundle:Event:index.html.twig', array(
-            'entities' => $entities,
-        ));
+        return array('entities' => $entities);
+
     }
     /**
      * Creates a new Event entity.
      *
+     * @Route("/create", name="event_create")
+     * @Method({"POST"})
+     * @Template()
      */
     public function createAction(Request $request)
     {
@@ -47,14 +55,15 @@ class EventController extends Controller
             return $this->redirect($this->generateUrl('event_show', array('id' => $entity->getId())));
         }
 
-        return $this->render('EventBundle:Event:new.html.twig', array(
+        return array(
             'entity' => $entity,
             'form'   => $form->createView(),
-        ));
+        );
     }
 
     /**
     * Creates a form to create a Event entity.
+    *
     *
     * @param Event $entity The entity
     *
@@ -75,21 +84,31 @@ class EventController extends Controller
     /**
      * Displays a form to create a new Event entity.
      *
+     * @Route("/new", name="event_new")
+     * @Template()
      */
     public function newAction()
     {
+        // Check if user authorized to create events
+        $securityContext = $this->container->get('security.context');
+        if (!$securityContext->isGranted('ROLE_ADMIN')) {
+            throw new AccessDeniedException('Only admins can create events!');
+        }
+
         $entity = new Event();
         $form   = $this->createCreateForm($entity);
 
-        return $this->render('EventBundle:Event:new.html.twig', array(
+        return array(
             'entity' => $entity,
             'form'   => $form->createView(),
-        ));
+        );
     }
 
     /**
      * Finds and displays a Event entity.
      *
+     * @Route("/{id}/show", name="event_show")
+     * @Template()
      */
     public function showAction($id)
     {
@@ -103,14 +122,17 @@ class EventController extends Controller
 
         $deleteForm = $this->createDeleteForm($id);
 
-        return $this->render('EventBundle:Event:show.html.twig', array(
+        return array(
             'entity'      => $entity,
-            'delete_form' => $deleteForm->createView(),        ));
+            'delete_form' => $deleteForm->createView()
+        );
     }
 
     /**
      * Displays a form to edit an existing Event entity.
      *
+     * @Route("/{id}/edit", name="event_edit")
+     * @Template()
      */
     public function editAction($id)
     {
@@ -125,11 +147,11 @@ class EventController extends Controller
         $editForm = $this->createEditForm($entity);
         $deleteForm = $this->createDeleteForm($id);
 
-        return $this->render('EventBundle:Event:edit.html.twig', array(
+        return  array(
             'entity'      => $entity,
             'edit_form'   => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
-        ));
+        );
     }
 
     /**
@@ -153,6 +175,8 @@ class EventController extends Controller
     /**
      * Edits an existing Event entity.
      *
+     * @Route("/{id}/update", name="event_update")
+     * @Method({"POST", "PUT"})
      */
     public function updateAction(Request $request, $id)
     {
@@ -174,15 +198,18 @@ class EventController extends Controller
             return $this->redirect($this->generateUrl('event_edit', array('id' => $id)));
         }
 
-        return $this->render('EventBundle:Event:edit.html.twig', array(
+        return array(
             'entity'      => $entity,
             'edit_form'   => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
-        ));
+        );
     }
     /**
      * Deletes a Event entity.
      *
+     * @Route("/{id}/delete", name="event_delete")
+     * @Method({"POST", "DELETE"})
+     * @Template()
      */
     public function deleteAction(Request $request, $id)
     {
