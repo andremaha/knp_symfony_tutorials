@@ -1,0 +1,38 @@
+{% extends 'EventBundle::layout.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {% stylesheets
+    '@UserBundle/Resources/public/css/*'
+    filter='cssrewrite'
+    %}
+    <link rel="stylesheet" href="{{ asset_url }}" />
+    {%  endstylesheets %}
+{% endblock %}
+
+{% block body %}
+<section class="main-block">
+    <article>
+        <section>
+            <h1>Register </h1>
+
+            <form action="{{ path('user_register') }}" method="POST">
+                {{ form_errors(form) }}
+
+                {{ form_row(form.username) }}
+                {{ form_row(form.email) }}
+                {{ form_row(form.plainPassword.first, {
+                    'label': 'Password'
+                }) }}
+                {{ form_row(form.plainPassword.second, {
+                    'label': 'Repeat the Password'
+                }) }}
+
+                {{ form_rest(form) }}
+
+                <input type="submit" value="Register" />
+            </form>
+        </section>
+    </article>
+</section>
+{% endblock body %}
